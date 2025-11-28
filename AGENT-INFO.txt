@@ -1,0 +1,122 @@
+═══════════════════════════════════════════════════════════════
+  CRJ 900 FLIGHT OPERATIONS CENTER - AGENT INFORMATION
+═══════════════════════════════════════════════════════════════
+
+AGENT 1: AVIATION PTSD SPECIALIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Agent ID: agent_9701kb42d64cete9g02dyftg3sk5
+Voice: Charlotte (empathetic, professional)
+Model: Gemini 2.0 Flash
+Temperature: 0.5 (balanced empathy and accuracy)
+
+Expertise:
+• Aviation-specific PTSD and trauma recovery
+• Transport Canada medical certification (CAME protocols)
+• Canadian pilot peer support resources (ALPA Canada)
+• Evidence-based therapies (CBT, MBSR, EMDR)
+• Return-to-work protocols after 2+ years leave
+• Flight deck stress management techniques
+
+First Message:
+"I'm here to support you with aviation-related stress and
+trauma recovery. Whether you're dealing with a recent incident
+or working on returning to the flight deck after time away,
+I understand the unique challenges pilots face. How can I help
+you today?"
+
+
+AGENT 2: CRJ 900 TECHNICAL SPECIALIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Agent ID: agent_5101kb42f0kmesm9sqscx5bv2420
+Voice: Adam (clear, authoritative)
+Model: Gemini 2.0 Flash
+Temperature: 0.3 (high accuracy for technical info)
+
+Expertise:
+• CF34-8C5 engine systems and procedures
+• Electrical and hydraulic systems
+• Flight controls and stall protection
+• Rockwell Collins ProLine 4 avionics
+• Emergency procedures (all scenarios)
+• Performance characteristics and limitations
+• Canadian operational considerations
+
+First Message:
+"CRJ 900 technical support ready. I'm here to help with any
+system questions, emergency procedures, or troubleshooting
+needs. What can I assist you with?"
+
+
+DEPLOYMENT INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dashboard File: crj900-pilot-dashboard.html
+Deployment: Single HTML file (self-contained)
+No build process required - just open in browser!
+
+Both agents are fully embedded in the dashboard and ready to use.
+
+
+QUICK START
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Open crj900-pilot-dashboard.html in any modern browser
+2. Click microphone icon in agent widgets to start voice chat
+3. Use map controls to toggle weather, airports, and traffic
+4. That's it!
+
+
+MANAGING AGENTS (via ElevenLabs Dashboard)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+To modify agents, visit: https://elevenlabs.io/app/conversational-ai
+
+Find your agents by ID:
+• agent_9701kb42d64cete9g02dyftg3sk5 (PTSD Specialist)
+• agent_5101kb42f0kmesm9sqscx5bv2420 (CRJ 900 Technical)
+
+You can:
+• Edit system prompts
+• Change voices
+• Add knowledge bases manually
+• Adjust temperature settings
+• View conversation history
+• Monitor usage
+
+
+SUPPORT RESOURCES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ALPA Canada Peer Pilot Support: 1-800-561-9576 (24/7)
+ALPA Aeromedical Support: 1-800-561-9576 ext. 8312
+Transport Canada Civil Aviation Medicine Branch
+Crisis Services Canada: 1-833-456-4566
+
+
+KNOWLEDGE BASE FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ptsd-specialist-knowledge-base.txt
+• Complete aviation PTSD support information
+• Transport Canada medical certification details
+• Canadian peer support resources
+• Return-to-work protocols
+
+crj900-technical-knowledge-base.txt
+• Complete CRJ 900 systems documentation
+• Emergency procedures reference
+• Troubleshooting guides
+• Performance data
+
+
+FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Voice-activated AI agents for emergency assistance
+✓ Real-time METAR weather for Canadian airports
+✓ Live aircraft traffic tracking (OpenSky Network)
+✓ Interactive aviation map with layer controls
+✓ Modern dark theme optimized for cockpit use
+✓ Zero installation - single HTML file
+✓ Works offline (except live data features)
+✓ Free and customizable
+
+
+═══════════════════════════════════════════════════════════════
+Built for Canadian CRJ 900 Pilots
+Professional aviation assistance at your fingertips
+═══════════════════════════════════════════════════════════════
