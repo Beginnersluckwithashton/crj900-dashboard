@@ -22,7 +22,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Arial, sans-serif;
             background: #1a1f2e;
             color: #f8fafc;
-            overflow: hidden;
+            overflow: auto;
         }
 
         /* Password Protection Overlay */
@@ -1072,8 +1072,10 @@
                 `, { maxWidth: 350 })
                 .addTo(airportsLayer);
 
-            // Fetch METAR data for this airport
-            fetchMetar(airport.code);
+            // Fetch METAR data when popup opens
+            marker.on('popupopen', function() {
+                fetchMetar(airport.code);
+            });
         });
 
         // Fetch METAR weather data with improved error handling
