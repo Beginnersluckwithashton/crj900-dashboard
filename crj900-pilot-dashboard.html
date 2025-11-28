@@ -1683,83 +1683,95 @@
             });
         });
 
-        // Fetch METAR weather data with improved error handling
+        // Fetch METAR weather data with CORS proxy fallback
         async function fetchMetar(airportCode) {
             const weatherDiv = document.getElementById(`weather-${airportCode}`);
             if (!weatherDiv) return;
 
-            try {
-                // Try Aviation Weather Center API
-                const response = await fetch(`https://aviationweather.gov/api/data/metar?ids=${airportCode}&format=json`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
+            // Try multiple CORS proxies in sequence
+            const proxies = [
+                'https://api.allorigins.win/get?url=',
+                'https://corsproxy.io/?',
+                ''  // Direct attempt as fallback
+            ];
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
+            for (const proxy of proxies) {
+                try {
+                    const apiUrl = `https://aviationweather.gov/api/data/metar?ids=${airportCode}&format=json`;
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
 
-                const data = await response.json();
+                    const response = await fetch(fetchUrl, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        signal: AbortSignal.timeout(5000)  // 5 second timeout
+                    });
 
-                if (data && data.length > 0) {
-                    const metar = data[0];
-                    const rawMetar = metar.rawOb || metar.raw_text || metar.metar;
+                    if (!response.ok) continue;  // Try next proxy
 
-                    if (rawMetar) {
-                        // Parse flight category for color coding
-                        const flightCategory = metar.fltcat || 'UNKNOWN';
-                        let categoryColor = '#94a3b8';
-                        let categoryLabel = flightCategory;
-
-                        switch(flightCategory) {
-                            case 'VFR':
-                                categoryColor = '#10b981';
-                                categoryLabel = 'VFR - Visual Flight Rules';
-                                break;
-                            case 'MVFR':
-                                categoryColor = '#0ea5e9';
-                                categoryLabel = 'MVFR - Marginal VFR';
-                                break;
-                            case 'IFR':
-                                categoryColor = '#ef4444';
-                                categoryLabel = 'IFR - Instrument Flight Rules';
-                                break;
-                            case 'LIFR':
-                                categoryColor = '#991b1b';
-                                categoryLabel = 'LIFR - Low IFR';
-                                break;
-                        }
-
-                        weatherDiv.innerHTML = `
-                            <div style="margin-bottom: 6px;">
-                                <strong style="color: ${categoryColor};">${categoryLabel}</strong>
-                            </div>
-                            <div style="font-size: 10px; line-height: 1.4; word-wrap: break-word;">
-                                ${rawMetar}
-                            </div>
-                            <div style="margin-top: 6px; font-size: 9px; color: #94a3b8;">
-                                Updated: ${new Date(metar.obsTime || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                        `;
+                    let data;
+                    if (proxy.includes('allorigins')) {
+                        const wrapper = await response.json();
+                        data = JSON.parse(wrapper.contents);
                     } else {
-                        weatherDiv.innerHTML = '<span style="color: #f59e0b;">METAR unavailable</span>';
+                        data = await response.json();
                     }
-                } else {
-                    weatherDiv.innerHTML = '<span style="color: #f59e0b;">No weather data</span>';
-                }
-            } catch (error) {
-                console.error(`Error fetching METAR for ${airportCode}:`, error);
 
-                // Fallback: Show basic unavailable message
-                weatherDiv.innerHTML = `
-                    <span style="color: #ef4444;">Weather temporarily unavailable</span>
-                    <div style="font-size: 9px; color: #94a3b8; margin-top: 4px;">
-                        API: ${error.message}
-                    </div>
-                `;
+                    if (data && data.length > 0) {
+                        const metar = data[0];
+                        const rawMetar = metar.rawOb || metar.raw_text || metar.metar;
+
+                        if (rawMetar) {
+                            // Parse flight category for color coding
+                            const flightCategory = metar.fltcat || 'UNKNOWN';
+                            let categoryColor = '#94a3b8';
+                            let categoryLabel = flightCategory;
+
+                            switch(flightCategory) {
+                                case 'VFR':
+                                    categoryColor = '#10b981';
+                                    categoryLabel = 'VFR - Visual Flight Rules';
+                                    break;
+                                case 'MVFR':
+                                    categoryColor = '#0ea5e9';
+                                    categoryLabel = 'MVFR - Marginal VFR';
+                                    break;
+                                case 'IFR':
+                                    categoryColor = '#ef4444';
+                                    categoryLabel = 'IFR - Instrument Flight Rules';
+                                    break;
+                                case 'LIFR':
+                                    categoryColor = '#991b1b';
+                                    categoryLabel = 'LIFR - Low IFR';
+                                    break;
+                            }
+
+                            weatherDiv.innerHTML = `
+                                <div style="margin-bottom: 6px;">
+                                    <strong style="color: ${categoryColor};">${categoryLabel}</strong>
+                                </div>
+                                <div style="font-size: 10px; line-height: 1.4; word-wrap: break-word;">
+                                    ${rawMetar}
+                                </div>
+                                <div style="margin-top: 6px; font-size: 9px; color: #94a3b8;">
+                                    Updated: ${new Date(metar.obsTime || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            `;
+                            return;  // Success! Exit function
+                        }
+                    }
+                } catch (error) {
+                    console.log(`Proxy ${proxy || 'direct'} failed for ${airportCode}:`, error.message);
+                    continue;  // Try next proxy
+                }
             }
+
+            // All proxies failed
+            weatherDiv.innerHTML = `
+                <span style="color: #ef4444;">Weather unavailable</span>
+                <div style="font-size: 9px; color: #94a3b8; margin-top: 4px;">
+                    All data sources failed
+                </div>
+            `;
         }
 
         // Toggle layer controls
