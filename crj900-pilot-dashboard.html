@@ -859,10 +859,10 @@
             pointer-events: none;
         }
 
-        /* Bottom Panel for Carousel and Quotes */
+        /* Bottom Panel for Carousel, Quotes, and Notes */
         .bottom-panel {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
             padding: 20px;
             grid-column: 1 / -1;
@@ -875,6 +875,12 @@
             }
         }
 
+        @media (max-width: 1600px) {
+            .bottom-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         @media (max-width: 1200px) {
             .main-container {
                 grid-template-columns: 1fr;
@@ -884,6 +890,127 @@
             .bottom-panel {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Notes Widget */
+        .notes-container {
+            background: #1a1f2e;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .notes-toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 8px;
+            background: #0f1419;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .notes-toolbar button {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid #334155;
+            color: #0ea5e9;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .notes-toolbar button:hover {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: #0ea5e9;
+        }
+
+        .emoji-picker {
+            display: flex;
+            gap: 3px;
+            padding: 8px;
+            background: #0f1419;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .emoji-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .emoji-btn:hover {
+            background: rgba(14, 165, 233, 0.2);
+            transform: scale(1.2);
+        }
+
+        .notes-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .note-tab {
+            background: #0f1419;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .note-tab.active {
+            background: #1a2332;
+            color: #0ea5e9;
+            border-color: #0ea5e9;
+        }
+
+        .note-tab:hover {
+            border-color: #0ea5e9;
+        }
+
+        .note-tab-close {
+            margin-left: 5px;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .notes-editor {
+            flex: 1;
+            background: #1a2332;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            color: #f8fafc;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            resize: none;
+            outline: none;
+            min-height: 200px;
+        }
+
+        .notes-editor:focus {
+            border-color: #0ea5e9;
+        }
+
+        .spotify-embed {
+            margin-top: 15px;
+            border-radius: 12px;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -1067,6 +1194,70 @@
                 </div>
             </div>
         </div>
+
+        <!-- Notes & Music Widget -->
+        <div class="panel" id="notes-panel">
+            <div class="panel-header" onclick="togglePanel('notes-panel')">
+                <div class="panel-header-text">
+                    <h2>📝 Flight Notes & Music</h2>
+                    <p>Personal notes & Spotify</p>
+                </div>
+                <button class="panel-toggle">▼</button>
+            </div>
+            <div class="panel-content">
+                <div class="notes-container">
+                    <!-- Formatting Toolbar -->
+                    <div class="notes-toolbar">
+                        <button onclick="undoNote()" title="Undo">↶</button>
+                        <button onclick="redoNote()" title="Redo">↷</button>
+                        <button onclick="insertText('<b>', '</b>')" title="Bold"><b>B</b></button>
+                        <button onclick="insertText('<i>', '</i>')" title="Italic"><i>I</i></button>
+                        <button onclick="insertText('<u>', '</u>')" title="Underline"><u>U</u></button>
+                        <button onclick="insertText('<s>', '</s>')" title="Strikethrough"><s>S</s></button>
+                        <button onclick="insertText('• ', '')" title="Bullet">•</button>
+                        <button onclick="insertText('─ ', '')" title="Line">─</button>
+                    </div>
+
+                    <!-- Emoji Picker -->
+                    <div class="emoji-picker">
+                        <button class="emoji-btn" onclick="insertEmoji('😀')">😀</button>
+                        <button class="emoji-btn" onclick="insertEmoji('😃')">😃</button>
+                        <button class="emoji-btn" onclick="insertEmoji('😄')">😄</button>
+                        <button class="emoji-btn" onclick="insertEmoji('😊')">😊</button>
+                        <button class="emoji-btn" onclick="insertEmoji('😎')">😎</button>
+                        <button class="emoji-btn" onclick="insertEmoji('✈️')">✈️</button>
+                        <button class="emoji-btn" onclick="insertEmoji('🛫')">🛫</button>
+                        <button class="emoji-btn" onclick="insertEmoji('🛬')">🛬</button>
+                        <button class="emoji-btn" onclick="insertEmoji('📝')">📝</button>
+                        <button class="emoji-btn" onclick="insertEmoji('✅')">✅</button>
+                        <button class="emoji-btn" onclick="insertEmoji('⚠️')">⚠️</button>
+                        <button class="emoji-btn" onclick="insertEmoji('🎵')">🎵</button>
+                        <button class="emoji-btn" onclick="insertEmoji('🔥')">🔥</button>
+                        <button class="emoji-btn" onclick="insertEmoji('⭐')">⭐</button>
+                        <button class="emoji-btn" onclick="insertEmoji('💡')">💡</button>
+                        <button class="emoji-btn" onclick="insertEmoji('🚀')">🚀</button>
+                    </div>
+
+                    <!-- Note Tabs -->
+                    <div class="notes-tabs" id="note-tabs">
+                        <div class="note-tab active" onclick="switchNote(0)">
+                            Note 1 <span class="note-tab-close" onclick="event.stopPropagation(); deleteNote(0)">×</span>
+                        </div>
+                        <div class="note-tab" onclick="createNewNote()">
+                            ⊕ New
+                        </div>
+                    </div>
+
+                    <!-- Text Editor -->
+                    <textarea class="notes-editor" id="notes-editor" placeholder="Start typing your notes here..."></textarea>
+
+                    <!-- Spotify Embed -->
+                    <div class="spotify-embed">
+                        <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/47AzGB5IJXvI8IEK3MXA2a?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Quote Editor Modal -->
@@ -1158,7 +1349,7 @@
 
         // Restore panel states on load
         function restorePanelStates() {
-            ['left-panel', 'map-panel', 'right-panel', 'carousel-panel', 'quote-panel'].forEach(panelId => {
+            ['left-panel', 'map-panel', 'right-panel', 'carousel-panel', 'quote-panel', 'notes-panel'].forEach(panelId => {
                 const collapsed = localStorage.getItem(`panel-${panelId}`) === 'true';
                 if (collapsed) {
                     document.getElementById(panelId)?.classList.add('collapsed');
@@ -1636,6 +1827,143 @@
             // Reinitialize carousel
             currentSlide = 0;
             updateCarouselDots();
+        }
+
+        // ==================== NOTES WIDGET ====================
+
+        let currentNoteIndex = 0;
+        let notesHistory = []; // For undo/redo
+
+        // Load notes from localStorage
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('flightNotes') || '[{"title":"Note 1","content":""}]');
+            return notes;
+        }
+
+        // Save notes to localStorage
+        function saveNotes(notes) {
+            localStorage.setItem('flightNotes', JSON.stringify(notes));
+        }
+
+        // Load current note into editor
+        function loadCurrentNote() {
+            const notes = loadNotes();
+            const editor = document.getElementById('notes-editor');
+            if (notes[currentNoteIndex]) {
+                editor.value = notes[currentNoteIndex].content;
+                notesHistory = [notes[currentNoteIndex].content]; // Reset history
+            }
+        }
+
+        // Save current note
+        function saveCurrentNote() {
+            const notes = loadNotes();
+            const editor = document.getElementById('notes-editor');
+            if (notes[currentNoteIndex]) {
+                notes[currentNoteIndex].content = editor.value;
+                saveNotes(notes);
+            }
+        }
+
+        // Auto-save on input
+        document.addEventListener('DOMContentLoaded', () => {
+            const editor = document.getElementById('notes-editor');
+            if (editor) {
+                editor.addEventListener('input', () => {
+                    saveCurrentNote();
+                    notesHistory.push(editor.value);
+                    if (notesHistory.length > 50) notesHistory.shift(); // Keep last 50 states
+                });
+                loadCurrentNote();
+            }
+        });
+
+        // Switch to a different note
+        function switchNote(index) {
+            saveCurrentNote();
+            currentNoteIndex = index;
+            loadCurrentNote();
+            renderNoteTabs();
+        }
+
+        // Create new note
+        function createNewNote() {
+            const notes = loadNotes();
+            const newNote = { title: `Note ${notes.length + 1}`, content: '' };
+            notes.push(newNote);
+            saveNotes(notes);
+            currentNoteIndex = notes.length - 1;
+            loadCurrentNote();
+            renderNoteTabs();
+        }
+
+        // Delete note
+        function deleteNote(index) {
+            const notes = loadNotes();
+            if (notes.length === 1) {
+                alert('Cannot delete the last note!');
+                return;
+            }
+            if (confirm('Delete this note?')) {
+                notes.splice(index, 1);
+                saveNotes(notes);
+                if (currentNoteIndex >= notes.length) currentNoteIndex = notes.length - 1;
+                loadCurrentNote();
+                renderNoteTabs();
+            }
+        }
+
+        // Render note tabs
+        function renderNoteTabs() {
+            const notes = loadNotes();
+            const tabsContainer = document.getElementById('note-tabs');
+            tabsContainer.innerHTML = notes.map((note, i) => `
+                <div class="note-tab ${i === currentNoteIndex ? 'active' : ''}" onclick="switchNote(${i})">
+                    ${note.title} <span class="note-tab-close" onclick="event.stopPropagation(); deleteNote(${i})">×</span>
+                </div>
+            `).join('') + '<div class="note-tab" onclick="createNewNote()">⊕ New</div>';
+        }
+
+        // Insert emoji at cursor
+        function insertEmoji(emoji) {
+            const editor = document.getElementById('notes-editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const text = editor.value;
+            editor.value = text.substring(0, start) + emoji + text.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + emoji.length;
+            editor.focus();
+            saveCurrentNote();
+        }
+
+        // Insert formatted text
+        function insertText(before, after) {
+            const editor = document.getElementById('notes-editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const text = editor.value;
+            const selectedText = text.substring(start, end);
+            const newText = before + selectedText + after;
+            editor.value = text.substring(0, start) + newText + text.substring(end);
+            editor.selectionStart = start + before.length;
+            editor.selectionEnd = start + before.length + selectedText.length;
+            editor.focus();
+            saveCurrentNote();
+        }
+
+        // Undo
+        function undoNote() {
+            if (notesHistory.length > 1) {
+                notesHistory.pop(); // Remove current state
+                const previousState = notesHistory[notesHistory.length - 1];
+                document.getElementById('notes-editor').value = previousState;
+                saveCurrentNote();
+            }
+        }
+
+        // Redo (simplified - just reload)
+        function redoNote() {
+            loadCurrentNote();
         }
 
         // ==================== PASSWORD PROTECTION ====================
