@@ -1683,43 +1683,95 @@
                 return;
             }
 
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('❌ Image too large!\n\nMax size: 5MB\nYour file: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB');
-                return;
-            }
-
             // Show loading feedback
             const dropZone = document.getElementById('photo-drop-zone');
-            dropZone.innerHTML = '<p style="color: #0ea5e9; font-size: 16px;">📤 Uploading ' + file.name + '...</p>';
+            dropZone.innerHTML = '<p style="color: #0ea5e9; font-size: 16px;">📤 Processing ' + file.name + '...<br><small>(' + (file.size / 1024 / 1024).toFixed(2) + 'MB)</small></p>';
 
-            // Read file and convert to base64
+            // Read and compress image
             const reader = new FileReader();
 
             reader.onerror = function() {
                 console.error('❌ FileReader error');
                 alert('❌ Error reading file. Please try again.');
-                location.reload(); // Reload to reset drop zone
+                location.reload();
             };
 
             reader.onload = function(e) {
-                console.log('✅ File converted to base64');
-                const base64Image = e.target.result;
-                const altText = prompt('Enter a description for this photo:', file.name.replace(/\.[^/.]+$/, ''));
-
-                if (altText !== null) {
-                    addPhotoFromFile(base64Image, altText || file.name);
-                    console.log('✅ Photo added to carousel!');
-                } else {
-                    console.log('⚠️ User cancelled description prompt');
-                }
-
-                // Reset drop zone
-                location.reload();
+                console.log('✅ File read, now compressing...');
+                compressAndSaveImage(e.target.result, file.name);
             };
 
             reader.readAsDataURL(file);
             console.log('⏳ Reading file...');
+        }
+
+        // Compress image using canvas to reduce size
+        function compressAndSaveImage(base64Data, filename) {
+            const img = new Image();
+            img.onload = function() {
+                console.log('📐 Original size:', img.width, 'x', img.height);
+
+                // Max dimensions for carousel (reduce if too large)
+                const MAX_WIDTH = 1200;
+                const MAX_HEIGHT = 800;
+
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate new dimensions while maintaining aspect ratio
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width = Math.round((width * MAX_HEIGHT) / height);
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                console.log('📐 Compressed size:', width, 'x', height);
+
+                // Create canvas and draw resized image
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to base64 with quality compression (0.8 = 80% quality)
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+                const originalSize = (base64Data.length / 1024 / 1024).toFixed(2);
+                const compressedSize = (compressedBase64.length / 1024 / 1024).toFixed(2);
+                console.log('💾 Size reduced:', originalSize + 'MB →', compressedSize + 'MB');
+
+                const altText = prompt('Enter a description for this photo:', filename.replace(/\.[^/.]+$/, ''));
+
+                if (altText !== null) {
+                    try {
+                        addPhotoFromFile(compressedBase64, altText || filename);
+                        console.log('✅ Photo added to carousel!');
+                        alert('✅ Photo added successfully!\n\nCompressed from ' + originalSize + 'MB to ' + compressedSize + 'MB');
+                    } catch (error) {
+                        console.error('❌ Storage error:', error);
+                        alert('❌ Still too large for storage!\n\nOriginal: ' + originalSize + 'MB\nCompressed: ' + compressedSize + 'MB\n\nTry a smaller image or delete some notes/photos first.');
+                    }
+                } else {
+                    console.log('⚠️ User cancelled description prompt');
+                }
+
+                location.reload();
+            };
+
+            img.onerror = function() {
+                console.error('❌ Error loading image');
+                alert('❌ Error processing image. Please try a different file.');
+                location.reload();
+            };
+
+            img.src = base64Data;
         }
 
         function addPhotoFromFile(base64Url, alt) {
