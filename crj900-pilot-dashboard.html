@@ -199,6 +199,19 @@
             background: linear-gradient(135deg, #1a2332 0%, #1f2a3d 100%);
             padding: 15px 20px;
             border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .panel-header:hover {
+            background: linear-gradient(135deg, #1f2a3d 0%, #242b3e 100%);
+        }
+
+        .panel-header-text {
+            flex: 1;
         }
 
         .panel-header h2 {
@@ -215,10 +228,32 @@
             margin-top: 3px;
         }
 
+        .panel-toggle {
+            background: none;
+            border: none;
+            color: #0ea5e9;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .panel.collapsed .panel-toggle {
+            transform: rotate(-90deg);
+        }
+
         .panel-content {
             flex: 1;
             overflow: hidden;
             position: relative;
+            max-height: 2000px;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .panel.collapsed .panel-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
         }
 
         #map {
@@ -395,6 +430,124 @@
             font-size: 11px;
         }
 
+        /* Photo Carousel */
+        .carousel-container {
+            background: #1a1f2e;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .carousel-slide {
+            display: none;
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .carousel-slide.active {
+            display: block;
+        }
+
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .carousel-btn {
+            background: rgba(14, 165, 233, 0.2);
+            border: 1px solid #0ea5e9;
+            color: #0ea5e9;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(14, 165, 233, 0.3);
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #334155;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: #0ea5e9;
+        }
+
+        /* Quote Slideshow */
+        .quote-container {
+            background: linear-gradient(135deg, #1a2332 0%, #1f2a3d 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .quote-text {
+            font-size: 18px;
+            color: #f8fafc;
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .quote-author {
+            font-size: 14px;
+            color: #0ea5e9;
+            font-weight: 600;
+        }
+
+        .quote-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quote-btn {
+            background: none;
+            border: 1px solid #334155;
+            color: #0ea5e9;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .quote-btn:hover {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: #0ea5e9;
+        }
+
+        /* Bottom Panel for Carousel and Quotes */
+        .bottom-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
         /* Responsive design */
         @media (max-width: 1400px) {
             .main-container {
@@ -406,6 +559,10 @@
             .main-container {
                 grid-template-columns: 1fr;
                 grid-template-rows: 400px 1fr 400px;
+            }
+
+            .bottom-panel {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -444,10 +601,13 @@
 
     <div class="main-container">
         <!-- Left Panel: PTSD Specialist Agent -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Aviation PTSD Specialist</h2>
-                <p>Mental health support for pilots</p>
+        <div class="panel" id="left-panel">
+            <div class="panel-header" onclick="togglePanel('left-panel')">
+                <div class="panel-header-text">
+                    <h2>Aviation PTSD Specialist</h2>
+                    <p>Mental health support for pilots</p>
+                </div>
+                <button class="panel-toggle">▼</button>
             </div>
             <div class="panel-content">
                 <div class="agent-widget">
@@ -461,10 +621,13 @@
         </div>
 
         <!-- Center Panel: Interactive Map -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Flight Operations Map</h2>
-                <p>Real-time weather, airports, and traffic</p>
+        <div class="panel" id="map-panel">
+            <div class="panel-header" onclick="togglePanel('map-panel')">
+                <div class="panel-header-text">
+                    <h2>Flight Operations Map</h2>
+                    <p>Real-time weather, airports, and traffic</p>
+                </div>
+                <button class="panel-toggle">▼</button>
             </div>
             <div class="panel-content">
                 <div id="map"></div>
@@ -487,10 +650,13 @@
         </div>
 
         <!-- Right Panel: CRJ 900 Technical Specialist -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2>CRJ 900 Technical Specialist</h2>
-                <p>Systems & emergency procedures</p>
+        <div class="panel" id="right-panel">
+            <div class="panel-header" onclick="togglePanel('right-panel')">
+                <div class="panel-header-text">
+                    <h2>CRJ 900 Technical Specialist</h2>
+                    <p>Systems & emergency procedures</p>
+                </div>
+                <button class="panel-toggle">▼</button>
             </div>
             <div class="panel-content">
                 <div class="agent-widget">
@@ -504,6 +670,55 @@
         </div>
     </div>
 
+    <!-- Bottom Panel: Carousel and Quotes -->
+    <div class="bottom-panel">
+        <!-- Photo Carousel -->
+        <div class="panel" id="carousel-panel">
+            <div class="panel-header" onclick="togglePanel('carousel-panel')">
+                <div class="panel-header-text">
+                    <h2>Aviation Gallery</h2>
+                    <p>Professional aviation photography</p>
+                </div>
+                <button class="panel-toggle">▼</button>
+            </div>
+            <div class="panel-content">
+                <div class="carousel-container">
+                    <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800" alt="Aircraft" class="carousel-slide active">
+                    <img src="https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=800" alt="Cockpit" class="carousel-slide">
+                    <img src="https://images.unsplash.com/photo-1583792297139-1cc35b90bf9d?w=800" alt="Aviation" class="carousel-slide">
+                    <img src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800" alt="Flight" class="carousel-slide">
+                    <div class="carousel-controls">
+                        <button class="carousel-btn" onclick="prevSlide()">◀ Prev</button>
+                        <div class="carousel-dots" id="carousel-dots"></div>
+                        <button class="carousel-btn" onclick="nextSlide()">Next ▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quote Slideshow -->
+        <div class="panel" id="quote-panel">
+            <div class="panel-header" onclick="togglePanel('quote-panel')">
+                <div class="panel-header-text">
+                    <h2>Aviation Wisdom</h2>
+                    <p>Inspiration for pilots</p>
+                </div>
+                <button class="panel-toggle">▼</button>
+            </div>
+            <div class="panel-content">
+                <div class="quote-container">
+                    <div class="quote-text" id="quote-text">Loading quote...</div>
+                    <div class="quote-author" id="quote-author"></div>
+                    <div class="quote-controls">
+                        <button class="quote-btn" onclick="prevQuote()">◀</button>
+                        <button class="quote-btn" id="quote-play-pause" onclick="toggleQuoteAutoPlay()">⏸ Pause</button>
+                        <button class="quote-btn" onclick="nextQuote()">▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -511,6 +726,137 @@
     <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 
     <script>
+        // ==================== PANEL COLLAPSE/EXPAND ====================
+
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            const wasCollapsed = panel.classList.contains('collapsed');
+
+            panel.classList.toggle('collapsed');
+
+            // Save state to localStorage
+            localStorage.setItem(`panel-${panelId}`, panel.classList.contains('collapsed'));
+        }
+
+        // Restore panel states on load
+        function restorePanelStates() {
+            ['left-panel', 'map-panel', 'right-panel', 'carousel-panel', 'quote-panel'].forEach(panelId => {
+                const collapsed = localStorage.getItem(`panel-${panelId}`) === 'true';
+                if (collapsed) {
+                    document.getElementById(panelId)?.classList.add('collapsed');
+                }
+            });
+        }
+
+        // ==================== PHOTO CAROUSEL ====================
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+
+            // Update dots
+            updateCarouselDots();
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function updateCarouselDots() {
+            const dotsContainer = document.getElementById('carousel-dots');
+            dotsContainer.innerHTML = '';
+
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot' + (i === currentSlide ? ' active' : '');
+                dot.onclick = () => {
+                    currentSlide = i;
+                    showSlide(currentSlide);
+                };
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        // ==================== QUOTE SLIDESHOW ====================
+
+        const quotes = [
+            { text: "The engine is the heart of an airplane, but the pilot is its soul.", author: "Walter Raleigh" },
+            { text: "A good landing is one you can walk away from. A great landing is one where you can use the airplane again.", author: "Aviation Proverb" },
+            { text: "Flying is more than a sport and more than a job; flying is pure passion and desire, which fill a lifetime.", author: "General Adolf Galland" },
+            { text: "The higher we soar, the smaller we appear to those who cannot fly.", author: "Friedrich Nietzsche" },
+            { text: "Aviation is proof that given the will, we have the capacity to achieve the impossible.", author: "Eddie Rickenbacker" },
+            { text: "The best safety device is a careful pilot.", author: "Aviation Safety" },
+            { text: "A mile of highway will take you a mile. A mile of runway will take you anywhere.", author: "Aviation Quote" },
+            { text: "The most important thing in flying is understanding what you're doing every second.", author: "Anonymous Pilot" },
+            { text: "There are old pilots, and there are bold pilots, but there are no old, bold pilots.", author: "Aviation Wisdom" },
+            { text: "Flying teaches you to trust your instruments, not your instincts.", author: "Flight Instructor" },
+            { text: "The sky is not the limit, it's just the beginning.", author: "Aviation Inspiration" },
+            { text: "A smooth landing is mostly luck; two in a row is all luck; three in a row is prevarication.", author: "Pilot Humor" },
+            { text: "The only time you have too much fuel is when you're on fire.", author: "Aviation Safety" },
+            { text: "Mental health is just as important as physical fitness for pilots. Never fly compromised.", author: "Transport Canada" },
+            { text: "Seeking help is a sign of strength, not weakness. ALPA Canada PPS: 1-800-561-9576", author: "ALPA Canada" }
+        ];
+
+        let currentQuote = 0;
+        let quoteAutoPlay = true;
+        let quoteInterval;
+
+        function showQuote(index) {
+            const quote = quotes[index];
+            document.getElementById('quote-text').textContent = `"${quote.text}"`;
+            document.getElementById('quote-author').textContent = `— ${quote.author}`;
+        }
+
+        function nextQuote() {
+            currentQuote = (currentQuote + 1) % quotes.length;
+            showQuote(currentQuote);
+        }
+
+        function prevQuote() {
+            currentQuote = (currentQuote - 1 + quotes.length) % quotes.length;
+            showQuote(currentQuote);
+        }
+
+        function toggleQuoteAutoPlay() {
+            quoteAutoPlay = !quoteAutoPlay;
+            const btn = document.getElementById('quote-play-pause');
+
+            if (quoteAutoPlay) {
+                btn.textContent = '⏸ Pause';
+                startQuoteAutoPlay();
+            } else {
+                btn.textContent = '▶ Play';
+                stopQuoteAutoPlay();
+            }
+        }
+
+        function startQuoteAutoPlay() {
+            if (quoteInterval) clearInterval(quoteInterval);
+            quoteInterval = setInterval(nextQuote, 8000); // Change quote every 8 seconds
+        }
+
+        function stopQuoteAutoPlay() {
+            if (quoteInterval) clearInterval(quoteInterval);
+        }
+
+        // Initialize carousel and quotes
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCarouselDots();
+            showQuote(0);
+            startQuoteAutoPlay();
+            restorePanelStates();
+        });
+
         // ==================== PASSWORD PROTECTION ====================
 
         const AUTH_KEY = 'crj900_dashboard_auth';
