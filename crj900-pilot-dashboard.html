@@ -1604,10 +1604,15 @@
         }
 
         // Photo Editor Functions
+        let photoUploadInitialized = false;
+
         function openPhotoEditor() {
             document.getElementById('photo-editor-modal').classList.add('active');
             renderCustomPhotos();
-            initializePhotoUpload();
+            if (!photoUploadInitialized) {
+                initializePhotoUpload();
+                photoUploadInitialized = true;
+            }
         }
 
         function closePhotoEditor() {
@@ -1663,33 +1668,58 @@
         }
 
         function handleFiles(files) {
-            if (files.length === 0) return;
+            console.log('📁 Files dropped:', files.length);
+            if (files.length === 0) {
+                console.log('❌ No files detected');
+                return;
+            }
 
             const file = files[0];
+            console.log('📷 Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
 
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                alert('Please upload an image file (JPG, PNG, GIF, WebP)');
+                alert('❌ Please upload an image file!\n\nSupported: JPG, PNG, GIF, WebP\nYou uploaded: ' + file.type);
                 return;
             }
 
             // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                alert('Image too large! Please use an image smaller than 5MB');
+                alert('❌ Image too large!\n\nMax size: 5MB\nYour file: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB');
                 return;
             }
 
+            // Show loading feedback
+            const dropZone = document.getElementById('photo-drop-zone');
+            dropZone.innerHTML = '<p style="color: #0ea5e9; font-size: 16px;">📤 Uploading ' + file.name + '...</p>';
+
             // Read file and convert to base64
             const reader = new FileReader();
+
+            reader.onerror = function() {
+                console.error('❌ FileReader error');
+                alert('❌ Error reading file. Please try again.');
+                location.reload(); // Reload to reset drop zone
+            };
+
             reader.onload = function(e) {
+                console.log('✅ File converted to base64');
                 const base64Image = e.target.result;
                 const altText = prompt('Enter a description for this photo:', file.name.replace(/\.[^/.]+$/, ''));
 
                 if (altText !== null) {
                     addPhotoFromFile(base64Image, altText || file.name);
+                    console.log('✅ Photo added to carousel!');
+                } else {
+                    console.log('⚠️ User cancelled description prompt');
                 }
+
+                // Reset drop zone
+                location.reload();
             };
+
             reader.readAsDataURL(file);
+            console.log('⏳ Reading file...');
         }
 
         function addPhotoFromFile(base64Url, alt) {
