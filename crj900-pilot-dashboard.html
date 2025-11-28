@@ -675,9 +675,6 @@
         }
 
         .edit-btn {
-            position: absolute;
-            top: 15px;
-            right: 65px;
             background: rgba(14, 165, 233, 0.2);
             border: 1px solid #0ea5e9;
             color: #0ea5e9;
@@ -686,6 +683,8 @@
             cursor: pointer;
             font-size: 12px;
             transition: all 0.3s ease;
+            margin-left: 10px;
+            white-space: nowrap;
         }
 
         .edit-btn:hover {
@@ -837,14 +836,19 @@
         /* Bottom Panel for Carousel and Quotes */
         .bottom-panel {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 350px 1fr 350px;
             gap: 20px;
             padding: 20px;
+            grid-column: 1 / -1;
         }
 
         /* Responsive design */
         @media (max-width: 1400px) {
             .main-container {
+                grid-template-columns: 300px 1fr 300px;
+            }
+
+            .bottom-panel {
                 grid-template-columns: 300px 1fr 300px;
             }
         }
