@@ -1315,6 +1315,7 @@
             </div>
             <div class="edit-form-actions">
                 <button class="btn-primary" onclick="addCustomPhoto()">Add from URL</button>
+                <button class="btn-secondary" onclick="checkStorage()">💾 Storage Info</button>
                 <button class="btn-secondary" onclick="closePhotoEditor()">Close</button>
             </div>
             <div class="custom-items-list" id="custom-photos-list"></div>
@@ -1711,9 +1712,9 @@
             img.onload = function() {
                 console.log('📐 Original size:', img.width, 'x', img.height);
 
-                // Max dimensions for carousel (reduce if too large)
-                const MAX_WIDTH = 1200;
-                const MAX_HEIGHT = 800;
+                // Max dimensions for carousel (smaller to save storage)
+                const MAX_WIDTH = 600;
+                const MAX_HEIGHT = 400;
 
                 let width = img.width;
                 let height = img.height;
@@ -1740,8 +1741,8 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Convert to base64 with quality compression (0.8 = 80% quality)
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                // Convert to base64 with aggressive compression (0.5 = 50% quality)
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
 
                 const originalSize = (base64Data.length / 1024 / 1024).toFixed(2);
                 const compressedSize = (compressedBase64.length / 1024 / 1024).toFixed(2);
@@ -1784,6 +1785,34 @@
 
             // Clear file input
             document.getElementById('photo-file-input').value = '';
+        }
+
+        // Check localStorage usage
+        function checkStorage() {
+            let totalSize = 0;
+            const items = {};
+
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    const size = (localStorage[key].length + key.length) * 2; // UTF-16 = 2 bytes per char
+                    items[key] = (size / 1024).toFixed(2) + ' KB';
+                    totalSize += size;
+                }
+            }
+
+            const totalMB = (totalSize / 1024 / 1024).toFixed(2);
+            const maxMB = 10; // Most browsers allow ~5-10MB
+            const percentUsed = ((totalSize / (maxMB * 1024 * 1024)) * 100).toFixed(1);
+
+            let message = `📊 localStorage Usage:\n\n`;
+            message += `Total: ${totalMB}MB / ~${maxMB}MB (${percentUsed}%)\n\n`;
+            message += `Breakdown:\n`;
+            for (let key in items) {
+                message += `• ${key}: ${items[key]}\n`;
+            }
+            message += `\n💡 Tip: Delete old notes or photos to free space!`;
+
+            alert(message);
         }
 
         function addCustomPhoto() {
