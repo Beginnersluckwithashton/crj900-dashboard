@@ -833,6 +833,32 @@
             background: #dc2626;
         }
 
+        /* Drag and Drop Zone */
+        .drop-zone {
+            border: 2px dashed #0ea5e9;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: rgba(14, 165, 233, 0.05);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: #38bdf8;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: #38bdf8;
+            transform: scale(1.02);
+        }
+
+        .drop-zone-content {
+            pointer-events: none;
+        }
+
         /* Bottom Panel for Carousel and Quotes */
         .bottom-panel {
             display: grid;
@@ -1067,17 +1093,37 @@
     <div id="photo-editor-modal" class="edit-modal">
         <div class="edit-modal-content">
             <h3>📷 Edit Photo Gallery</h3>
+
+            <!-- Drag and Drop Zone -->
+            <div class="drop-zone" id="photo-drop-zone">
+                <div class="drop-zone-content">
+                    <p style="font-size: 18px; margin-bottom: 10px;">📁 Drag & Drop Photo Here</p>
+                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">or</p>
+                    <label for="photo-file-input" class="btn-primary" style="cursor: pointer; display: inline-block;">
+                        Choose File
+                    </label>
+                    <input type="file" id="photo-file-input" accept="image/*" style="display: none;">
+                    <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">Supports: JPG, PNG, GIF, WebP</p>
+                </div>
+            </div>
+
+            <!-- OR divider -->
+            <div style="display: flex; align-items: center; gap: 10px; margin: 20px 0;">
+                <div style="flex: 1; height: 1px; background: #334155;"></div>
+                <span style="color: #94a3b8; font-size: 12px;">OR USE URL</span>
+                <div style="flex: 1; height: 1px; background: #334155;"></div>
+            </div>
+
             <div class="edit-form-group">
                 <label for="new-photo-url">Photo URL</label>
                 <input type="text" id="new-photo-url" placeholder="https://example.com/image.jpg">
-                <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Use Unsplash, Imgur, or direct image URLs</p>
             </div>
             <div class="edit-form-group">
                 <label for="new-photo-alt">Photo Description</label>
                 <input type="text" id="new-photo-alt" placeholder="Brief description of the photo">
             </div>
             <div class="edit-form-actions">
-                <button class="btn-primary" onclick="addCustomPhoto()">Add Photo</button>
+                <button class="btn-primary" onclick="addCustomPhoto()">Add from URL</button>
                 <button class="btn-secondary" onclick="closePhotoEditor()">Close</button>
             </div>
             <div class="custom-items-list" id="custom-photos-list"></div>
@@ -1370,12 +1416,101 @@
         function openPhotoEditor() {
             document.getElementById('photo-editor-modal').classList.add('active');
             renderCustomPhotos();
+            initializePhotoUpload();
         }
 
         function closePhotoEditor() {
             document.getElementById('photo-editor-modal').classList.remove('active');
             document.getElementById('new-photo-url').value = '';
             document.getElementById('new-photo-alt').value = '';
+        }
+
+        // Initialize drag-and-drop and file upload
+        function initializePhotoUpload() {
+            const dropZone = document.getElementById('photo-drop-zone');
+            const fileInput = document.getElementById('photo-file-input');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop zone when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('drag-over');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('drag-over');
+                }, false);
+            });
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            // Handle file input change
+            fileInput.addEventListener('change', handleFileSelect, false);
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+
+            const file = files[0];
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (JPG, PNG, GIF, WebP)');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image too large! Please use an image smaller than 5MB');
+                return;
+            }
+
+            // Read file and convert to base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                const altText = prompt('Enter a description for this photo:', file.name.replace(/\.[^/.]+$/, ''));
+
+                if (altText !== null) {
+                    addPhotoFromFile(base64Image, altText || file.name);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addPhotoFromFile(base64Url, alt) {
+            const customPhotos = JSON.parse(localStorage.getItem('customPhotos') || '[]');
+            customPhotos.push({ url: base64Url, alt: alt });
+            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+
+            reloadCarousel();
+            renderCustomPhotos();
+
+            // Clear file input
+            document.getElementById('photo-file-input').value = '';
         }
 
         function addCustomPhoto() {
